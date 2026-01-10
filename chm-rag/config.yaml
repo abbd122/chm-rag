@@ -1,0 +1,51 @@
+# CHM RAG 知识问答系统配置
+
+# OpenAI API 配置
+openai:
+  api_key: "sk-gKZGQf4P0Glg4mnf18Dc5fF6458c4f24B5Ed0bD2B97a7d1c"
+  base_url: "https://ai-yyds.com/v1"  # API 代理地址，留空则使用官方地址
+
+# CHM 文档配置
+chm:
+  file_path: "D:/Program Files/3D/api/ApiHelpDoc.chm"
+  output_dir: ./data/chm_extracted
+
+# 工具路径配置（可选，留空则自动检测）
+tools:
+  7z_path: "D:/7-Zip/7z.exe"  # 7-Zip 路径，例如: "E:/Software/7-Zip/7z.exe"
+
+# Embedding 配置
+embedding:
+  provider: openai
+  model: text-embedding-3-large
+  batch_size: 100
+
+# 向量存储配置
+vectorstore:
+  provider: faiss
+  index_path: ./data/index
+
+# LLM 配置
+llm:
+  provider: openai
+  model: gpt-4o
+  temperature: 0.1
+  max_tokens: 2000
+
+# RAG 配置
+rag:
+  top_k: 10
+  max_chunk_tokens: 800
+
+# Demo 工程配置
+demo:
+  # Demo 目录列表（支持多个工程）
+  directories:
+    - path: ""           # Demo 工程路径，例如: "D:/Projects/Demo1"
+      name: ""           # 工程名（可选，默认使用目录名）
+  # 解析配置
+  parser:
+    context_lines: 5     # API 调用上下文行数（前后各 N 行）
+    min_commands: 1      # TCMD 文件最少命令数（低于此值忽略）
+  # 输出配置
+  chunks_path: ./data/demo_chunks.json  # Demo 切块保存路径
