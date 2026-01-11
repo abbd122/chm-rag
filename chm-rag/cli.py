@@ -25,6 +25,31 @@ app = typer.Typer(
 console = Console()
 
 
+def read_multiline_input() -> str:
+    """
+    读取多行输入，单独一行输入 '>>>' 结束
+
+    Returns:
+        用户输入的多行文本
+    """
+    console.print("[dim]（多行输入模式：输入内容，单独一行 '>>>' 结束）[/dim]")
+    lines = []
+
+    while True:
+        try:
+            line = console.input("[dim]...[/dim] ")
+            if line.strip() == ">>>":
+                break
+            lines.append(line)
+        except EOFError:
+            break
+        except KeyboardInterrupt:
+            console.print("\n[dim]已取消输入[/dim]")
+            return ""
+
+    return "\n".join(lines)
+
+
 # ==================== 配置获取函数 ====================
 
 def get_chm_file_from_config() -> Optional[Path]:
@@ -550,8 +575,12 @@ def chat(
     console.print(
         Panel(
             f"进入交互式问答模式{source_label}\n"
-            f"索引: CHM {stats.get('chm_chunks', 0)} + Demo {stats.get('demo_chunks', 0)} 片段\n"
-            f"输入问题后按回车，输入 'exit'/'quit' 退出，输入 'clear' 清空上下文",
+            f"索引: CHM {stats.get('chm_chunks', 0)} + Demo {stats.get('demo_chunks', 0)} 片段\n\n"
+            f"[bold]操作说明:[/bold]\n"
+            f"  • 输入问题后按回车\n"
+            f"  • 输入 [cyan]<<<[/cyan] 进入多行输入模式（输入 [cyan]>>>[/cyan] 结束）\n"
+            f"  • 输入 [cyan]exit[/cyan]/[cyan]quit[/cyan] 退出\n"
+            f"  • 输入 [cyan]clear[/cyan] 清空上下文",
             title="CHM RAG 交互模式",
         )
     )
@@ -575,6 +604,12 @@ def chat(
                 history.clear()
                 console.print("[dim]已清空对话上下文[/dim]")
                 continue
+
+            # === 多行模式 ===
+            if question == "<<<":
+                question = read_multiline_input().strip()
+                if not question:
+                    continue
 
             response = engine.query(
                 question, top_k=top_k, source=source,
